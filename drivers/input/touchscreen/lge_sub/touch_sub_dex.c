@@ -15,7 +15,7 @@ static int touch_set_input_prop(struct touch_sub_core_data *ts, struct input_dev
 	int ret;
 	TOUCH_TRACE();
 
-	input->phys = "devices/virtual/input";
+	input->phys = "devices/virtual/input/sub";
 	TOUCH_I("%s %d-%d-%d\n", __func__,
 			ts->caps.max_x,
 			ts->caps.max_y,

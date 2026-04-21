@@ -41,6 +41,8 @@ u32 touch_sub_debug_mask = BASE_INFO;
  */
 module_param_named(debug_mask, touch_sub_debug_mask, int, 0664);
 
+int touch_sub_init_pm(struct touch_sub_core_data *ts);
+
 static void touch_sub_suspend(struct device *dev);
 static void touch_sub_resume(struct device *dev);
 #if defined(CONFIG_SUB_SECURE_TOUCH)
@@ -540,7 +542,7 @@ static int touch_sub_init_input(struct touch_sub_core_data *ts)
 	}
 
 	input->name = "touch_sub_dev";
-	input->phys = "devices/virtual/input";
+	input->phys = "devices/virtual/input/sub";
 
 	TOUCH_I("%s %d-%d-%d-%d-%d-%d-%d\n", __func__,
 			ts->caps.max_x,
@@ -1390,7 +1392,7 @@ static int touch_sub_core_probe_normal(struct platform_device *pdev)
 	}
 
 	touch_sub_disable_irq(ts->irq);
-	touch_sub_init_pm(ts);
+	// touch_sub_init_pm(ts);
 
 	touch_sub_init_notify(ts);
 
@@ -1447,7 +1449,7 @@ static int touch_sub_core_probe_etc(struct platform_device *pdev)
 		return ret;
 	}
 
-	touch_sub_init_pm(ts);
+//	touch_sub_init_pm(ts);
 	touch_sub_init_notify(ts);
 
 	return ret;
