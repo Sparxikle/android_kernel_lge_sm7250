@@ -49,6 +49,8 @@ static irqreturn_t secure_touch_sub_filter_interrupt(struct touch_sub_core_data 
 
 struct pdev_list *plist_sub;
 
+static int touch_sub_init_pm(struct touch_sub_core_data *ts);
+
 #if defined(CONFIG_LGE_TOUCH_CORE_SUB)
 void touch_sub_control_irq(int on_off)
 {
@@ -106,9 +108,6 @@ void touch_sub_report_event(struct touch_sub_core_data *ts)
 	u16 release_mask = 0;
 	u16 change_mask = 0;
 	int i;
-	bool hide_lockscreen_coord =
-		((atomic_read(&ts->state.lockscreen) == LOCKSCREEN_LOCK) &&
-		 (ts->role.hide_coordinate));
 
 	TOUCH_TRACE();
 
@@ -747,6 +746,16 @@ static int touch_sub_init_pm(struct touch_sub_core_data *ts)
 	ts->fb_notif.notifier_call = touch_sub_fb_notifier_callback;
 	ts->driver->init_pm(ts->dev);
 	return fb_register_client(&ts->fb_notif);
+}
+#else
+static int touch_sub_init_pm(struct touch_sub_core_data *ts)
+{
+	TOUCH_TRACE();
+
+	if (ts->driver->init_pm)
+		ts->driver->init_pm(ts->dev);
+
+	return 0;
 }
 #endif
 

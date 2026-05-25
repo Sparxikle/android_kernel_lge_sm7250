@@ -292,8 +292,7 @@ bool ams_deviceGetFlicker(ams_deviceCtx_t * ctx, ams_apiAlsFlicker_t * exportDat
     else
         exportData->mHz = 0;
 
-
-	exportData->flicker_raw_data = flickerCtx->flicker_raw_data;
+    exportData->flicker_raw_data = flickerCtx->flicker_raw_data;
 																																																		
  
     return false;

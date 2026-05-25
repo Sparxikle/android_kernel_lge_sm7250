@@ -646,7 +646,7 @@ struct touch_sub_core_data {
 	struct atomic_notify_event notify_event_arr[ATOMIC_NOTIFY_EVENT_SIZE];
 #if defined(CONFIG_HAS_EARLYSUSPEND)
 	struct early_suspend early_suspend;
-#elif defined(CONFIG_DRM_MSM) & defined(CONFIG_FB)
+#elif defined(CONFIG_DRM_MSM) && defined(CONFIG_FB)
 	struct notifier_block drm_notif;
 #elif defined(CONFIG_FB)
 	struct notifier_block fb_notif;

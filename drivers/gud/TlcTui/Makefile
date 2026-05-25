@@ -28,9 +28,9 @@ ccflags-y += -Wno-declaration-after-statement
 ccflags-$(CONFIG_TRUSTONIC_TEE_DEBUG) += -DDEBUG
 
 # MobiCore Driver includes
-ccflags-y += -I$(GUD_ROOT_FOLDER)/MobiCoreDriver/public
-ccflags-y += -Idrivers/misc/
+ccflags-y += -I$(srctree)/$(GUD_ROOT_FOLDER)/MobiCoreDriver/public
+ccflags-y += -I$(srctree)/drivers/misc/
 
 # MobiCore TlcTui required includes
-ccflags-y += -I$(GUD_ROOT_FOLDER)/TlcTui/inc \
-             -I$(GUD_ROOT_FOLDER)/TlcTui/public
+ccflags-y += -I$(srctree)/$(GUD_ROOT_FOLDER)/TlcTui/inc \
+             -I$(srctree)/$(GUD_ROOT_FOLDER)/TlcTui/public
