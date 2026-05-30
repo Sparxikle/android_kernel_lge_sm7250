@@ -1507,18 +1507,12 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_SetSamples(VibeUInt8 nActuatorIndex
 		/* batch multiple i2c transactions for faster transmission */
 		if (dw7914->position > 1)
 		{
-			struct i2c_msg msgs[2];
-			// send 'go' to wake up dw7914 fifo logic
-			u8 command[2] = {DW7914_PLAYBACK, DW7914_PLAYBACK_GO};
-			msgs[0].flags = 0;
-			msgs[0].addr = dw7914->i2c->addr;
-			msgs[0].buf = dw7914->buffer;
-			msgs[0].len = dw7914->position;
-			msgs[1].flags = 0;
-			msgs[1].addr = dw7914->i2c->addr;
-			msgs[1].buf = command;
-			msgs[1].len = sizeof(command);
-			if (2 != i2c_transfer(dw7914->i2c->adapter, msgs, 2)) {
+			struct i2c_msg msg;
+			msg.flags = 0;
+			msg.addr = dw7914->i2c->addr;
+			msg.buf = dw7914->buffer;
+			msg.len = dw7914->position;
+			if (1 != i2c_transfer(dw7914->i2c->adapter, &msg, 1)) {
 				DbgOut((DBL_ERROR, "ImmVibeSPI_ForceOut_SetSamples: i2c write failed\n"));
 				//return VIBE_E_FAIL;
 			}
