@@ -570,8 +570,15 @@ static void dw7914_poweron(int mode)
 		}
 		msleep(1);
 
-		data = DW7914_VD_CLAMP_mV(6720);
+		data = DW7914_VD_CLAMP_mV(8000);
 		if (VIBE_S_SUCCESS != I2CWrite(DW7914_VD_CLAMP, 1, &data))
+		{
+			//DbgOut((DBL_ERROR, "I2CWrite failed to send RTP_COMMAND\n"));
+		}
+		msleep(1);
+
+		data = DW7914_BOOST_MODE_BST_EN;
+		if (VIBE_S_SUCCESS != I2CWrite(DW7914_BOOST_MODE, 1, &data))
 		{
 			//DbgOut((DBL_ERROR, "I2CWrite failed to send RTP_COMMAND\n"));
 		}
@@ -1356,7 +1363,7 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_AmpEnable(VibeUInt8 nActuatorIndex)
 
 	DbgOut((DBL_INFO, "ImmVibeSPI_ForceOut_AmpEnable.\n"));
 
-	dw7914->buffering = 1;
+	dw7914->buffering = 0;
 	dw7914->position = 1;
 
 	if (dw7914->i2c) {
@@ -1385,6 +1392,7 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_AmpEnable(VibeUInt8 nActuatorIndex)
 			i2c_commands(dw7914->i2c, msgs, command, sizeof(command));
 		}
 #else
+		dw7914_poweron(RTP_MODE);
 		data = DW7914_PLAYBACK_GO;
 		if (VIBE_S_SUCCESS != I2CWrite(DW7914_PLAYBACK, 1, &data))
 		{
@@ -1454,7 +1462,7 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_SetSamples(VibeUInt8 nActuatorIndex
 
 #ifdef IMMVIBESPI_USE_BUFFERFULL
 	/* write zeros to keep hardware buffer full and in sync with driver */
-	if (nBufferSizeInBytes != VIBE_OUTPUT_SAMPLE_SIZE) {
+	if (nBufferSizeInBytes == 0) {
 		static VibeInt8 buffer[VIBE_OUTPUT_SAMPLE_SIZE] = {0,};
 		pForceOutputBuffer = buffer;
 		nBufferSizeInBytes = sizeof(buffer);
@@ -1464,7 +1472,8 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_SetSamples(VibeUInt8 nActuatorIndex
 
 	/* buffer initial samples from daemon to compensate for system delay */
 	if (dw7914->buffering >= 0 && pForceOutputBuffer && nBufferSizeInBytes > 0 /*&& dw7914->position + nBufferSizeInBytes + 1 <= sizeof(dw7914->buffer)*/) {
-		DbgOut((DBL_INFO, "ImmVibeSPI_ForceOut_SetSamples: buffering position=%d buffer=%d sizeof=%d\n", dw7914->position, nBufferSizeInBytes, sizeof(dw7914->buffer)));
+		// Reset position and Copy samples immediately
+		dw7914->position = 1;
 #ifdef UPSCALE_12_TO_24khz
 		{   s8 sample1;
 			s8 *src = pForceOutputBuffer;
@@ -1483,15 +1492,6 @@ IMMVIBESPIAPI VibeStatus ImmVibeSPI_ForceOut_SetSamples(VibeUInt8 nActuatorIndex
 		memcpy(dw7914->buffer + dw7914->position, pForceOutputBuffer, nBufferSizeInBytes);
 		dw7914->position += nBufferSizeInBytes;
 #endif
-		/* filling buffer */
-		if (dw7914->buffering == 1 && dw7914->position < sizeof(dw7914->buffer))
-		{
-			return VIBE_S_SUCCESS;
-		}
-		if (dw7914->buffering > 1 && dw7914->position < 240)
-		{
-			return VIBE_S_SUCCESS;
-		}
 	}
 
 	/* estimate dw7914 sample time */
